@@ -26,6 +26,7 @@ License along with TPOT. If not, see <http://www.gnu.org/licenses/>.
 import numpy as np
 from deap import tools, gp
 from inspect import isclass
+from datetime import datetime
 from .operator_utils import set_sample_weight
 from sklearn.utils import indexable
 from sklearn.metrics import check_scoring
@@ -377,7 +378,7 @@ def mutNodeReplacement(individual, pset):
 @threading_timeoutable(default="Timeout")
 def _wrapped_cross_val_score(sklearn_pipeline, features, target,
                              cv, scoring_function, sample_weight=None,
-                             groups=None, use_dask=False):
+                             groups=None, use_dask=False, start=None):
     """Fit estimator and compute scores for a given dataset split.
 
     Parameters
@@ -408,6 +409,11 @@ def _wrapped_cross_val_score(sklearn_pipeline, features, target,
     cv_iter = list(cv.split(features, target, groups))
     scorer = check_scoring(sklearn_pipeline, scoring=scoring_function)
 
+    def print_score(CV_score, start):
+        score = np.nanmean(CV_score)
+        if start is not None:
+            print(datetime.now() - start, score)
+
     if use_dask:
         try:
             import dask_ml.model_selection  # noqa
@@ -434,6 +440,7 @@ def _wrapped_cross_val_score(sklearn_pipeline, features, target,
         scores = [cv_results['split{}_test_score'.format(i)]
                   for i in range(n_splits)]
         CV_score = dask.delayed(np.array)(scores)[:, 0]
+        dask.delayed(print_score)(CV_score, start)
         return dask.delayed(np.nanmean)(CV_score)
     else:
         try:
@@ -451,6 +458,7 @@ def _wrapped_cross_val_score(sklearn_pipeline, features, target,
                                          fit_params=sample_weight_dict)
                                     for train, test in cv_iter]
             CV_score = np.array(scores)[:, 0]
+            print_score(CV_score, start)
             return np.nanmean(CV_score)
         except TimeoutException:
             return "Timeout"

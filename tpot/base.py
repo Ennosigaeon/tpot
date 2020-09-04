@@ -1297,7 +1297,8 @@ class TPOTBase(BaseEstimator):
             sample_weight=sample_weight,
             groups=groups,
             timeout=max(int(self.max_eval_time_mins * 60), 1),
-            use_dask=self.use_dask
+            use_dask=self.use_dask,
+            start=self._start_datetime
         )
 
         result_score_list = []
