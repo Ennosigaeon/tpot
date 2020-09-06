@@ -63,15 +63,15 @@ tpot_config = {
         'validation_fraction': [0.01, 0.1, 0.2, 0.3, 0.4]
     },
 
-    'sklearn.svm.SVC': {
+    'sklearn.svm.SVC': {  # TODO complete SVC hyperparameter space prevents TPOT from starting
         'C': [0.03125, 1, 10, 100, 1000, 32768],
         'kernel': ["rbf", "poly", "sigmoid"],
         'degree': range(2, 6),
-        'gamma': [3.0517578125e-05, 1e-3, 1e-1, 1, 3, 8],
+        # 'gamma': [3.0517578125e-05, 1e-3, 1e-1, 1, 3, 8],
         'coef0': [-1, -0.5, 0, 0.5, 1],
         'shrinking': [True, False],
         'tol': [1e-5, 1e-4, 1e-3, 1e-2, 1e-1],
-        'max_iter': [-1]
+        # 'max_iter': [-1]
     },
 
     'sklearn.discriminant_analysis.LinearDiscriminantAnalysis': {

@@ -518,6 +518,7 @@ class TPOTBase(BaseEstimator):
             self.operators = []
             self.arguments = []
             for key in sorted(self._config_dict.keys()):
+                print('Loading', key)
                 op_class, arg_types = TPOTOperatorClassFactory(
                     key,
                     self._config_dict[key],
