@@ -412,7 +412,7 @@ def _wrapped_cross_val_score(sklearn_pipeline, features, target,
     def print_score(CV_score, start):
         score = np.nanmean(CV_score)
         if start is not None:
-            print(datetime.now() - start, score)
+            print('###RUNHISTORY###', datetime.now() - start, score)
     print(sklearn_pipeline)
 
     if use_dask:
