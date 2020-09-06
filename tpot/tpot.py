@@ -29,7 +29,7 @@ from sklearn.utils import _safe_indexing
 import numpy as np
 
 from .base import TPOTBase
-from .config.classifier_benchmark import tpot_config
+from .config.classifier import classifier_config_dict
 from .config.regressor import regressor_config_dict
 
 
@@ -37,7 +37,7 @@ class TPOTClassifier(TPOTBase):
     """TPOT estimator for classification problems."""
 
     scoring_function = 'accuracy'  # Classification scoring
-    default_config_dict = tpot_config  # Classification dictionary
+    default_config_dict = classifier_config_dict  # Classification dictionary
     classification = True
     regression = False
 
