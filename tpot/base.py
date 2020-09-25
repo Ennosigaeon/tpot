@@ -273,6 +273,7 @@ class TPOTBase(BaseEstimator):
         self.disable_update_check = disable_update_check
         self.random_state = random_state
         self.log_file = log_file
+        self.run_history = []
 
 
     def _setup_template(self, template):
@@ -1311,8 +1312,9 @@ class TPOTBase(BaseEstimator):
             if self._n_jobs == 1 and not self.use_dask:
                 for sklearn_pipeline in sklearn_pipeline_list:
                     self._stop_by_max_time_mins()
-                    val = partial_wrapped_cross_val_score(sklearn_pipeline=sklearn_pipeline)
+                    val, time, _ = partial_wrapped_cross_val_score(sklearn_pipeline=sklearn_pipeline)
                     result_score_list = self._update_val(val, result_score_list)
+                    self.run_history.append((time.total_seconds(), abs(val), sklearn_pipeline))
             else:
                 # chunk size for pbar update
                 if self.use_dask:
@@ -1343,6 +1345,9 @@ class TPOTBase(BaseEstimator):
                             for sklearn_pipeline in sklearn_pipeline_list[chunk_idx:chunk_idx + chunk_size])
                     # update pbar
                     for val in tmp_result_scores:
+                        if isinstance(val, tuple):
+                            val, time, pipeline = val
+                            self.run_history.append((time.total_seconds(), abs(val), pipeline))
                         result_score_list = self._update_val(val, result_score_list)
 
         except (KeyboardInterrupt, SystemExit, StopIteration) as e:

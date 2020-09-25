@@ -409,6 +409,7 @@ def _wrapped_cross_val_score(sklearn_pipeline, features, target,
     cv_iter = list(cv.split(features, target, groups))
     scorer = check_scoring(sklearn_pipeline, scoring=scoring_function)
 
+    # Fallback mechanism for dask
     def print_score(CV_score, start, sklearn_pipeline):
         score = np.nanmean(CV_score)
         if start is not None:
@@ -458,9 +459,8 @@ def _wrapped_cross_val_score(sklearn_pipeline, features, target,
                                          fit_params=sample_weight_dict)
                                     for train, test in cv_iter]
             CV_score = np.array(scores)[:, 0]
-            print_score(CV_score, start, sklearn_pipeline)
-            return np.nanmean(CV_score)
+            return np.nanmean(CV_score), datetime.now() - start, sklearn_pipeline
         except TimeoutException:
-            return "Timeout"
+            return "Timeout", datetime.now() - start, sklearn_pipeline
         except Exception as e:
-            return -float('inf')
+            return -float('inf'), datetime.now() - start, sklearn_pipeline
