@@ -34,6 +34,7 @@ from sklearn.model_selection._validation import _fit_and_score
 
 from sklearn.base import clone
 from collections import defaultdict
+import math
 import warnings
 from stopit import threading_timeoutable, TimeoutException
 
@@ -412,7 +413,7 @@ def _wrapped_cross_val_score(sklearn_pipeline, features, target,
     def print_score(CV_score, start, sklearn_pipeline):
         score = np.nanmean(CV_score)
         if start is not None:
-            print('###RUNHISTORY###', datetime.now() - start, score, sklearn_pipeline)
+            print('###RUNHISTORY###', datetime.now() - start, math.abs(score), sklearn_pipeline)
 
     if use_dask:
         try:
