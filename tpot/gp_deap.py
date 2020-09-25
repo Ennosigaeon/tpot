@@ -409,11 +409,10 @@ def _wrapped_cross_val_score(sklearn_pipeline, features, target,
     cv_iter = list(cv.split(features, target, groups))
     scorer = check_scoring(sklearn_pipeline, scoring=scoring_function)
 
-    def print_score(CV_score, start):
+    def print_score(CV_score, start, sklearn_pipeline):
         score = np.nanmean(CV_score)
         if start is not None:
-            print('###RUNHISTORY###', datetime.now() - start, score)
-    print(sklearn_pipeline)
+            print('###RUNHISTORY###', datetime.now() - start, score, sklearn_pipeline)
 
     if use_dask:
         try:
@@ -441,7 +440,7 @@ def _wrapped_cross_val_score(sklearn_pipeline, features, target,
         scores = [cv_results['split{}_test_score'.format(i)]
                   for i in range(n_splits)]
         CV_score = dask.delayed(np.array)(scores)[:, 0]
-        dask.delayed(print_score)(CV_score, start)
+        dask.delayed(print_score)(CV_score, start, sklearn_pipeline)
         return dask.delayed(np.nanmean)(CV_score)
     else:
         try:
@@ -459,7 +458,7 @@ def _wrapped_cross_val_score(sklearn_pipeline, features, target,
                                          fit_params=sample_weight_dict)
                                     for train, test in cv_iter]
             CV_score = np.array(scores)[:, 0]
-            print_score(CV_score, start)
+            print_score(CV_score, start, sklearn_pipeline)
             return np.nanmean(CV_score)
         except TimeoutException:
             return "Timeout"
