@@ -1347,7 +1347,7 @@ class TPOTBase(BaseEstimator):
                     for val in tmp_result_scores:
                         if isinstance(val, tuple):
                             val, time, pipeline = val
-                            self.run_history.append((time.total_seconds(), abs(val), pipeline))
+                            self.run_history.append((time.total_seconds(), float('inf') if val == 'Timeout' else abs(val), pipeline))
                         result_score_list = self._update_val(val, result_score_list)
 
         except (KeyboardInterrupt, SystemExit, StopIteration) as e:
