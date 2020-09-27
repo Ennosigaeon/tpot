@@ -40,6 +40,7 @@ from tempfile import mkdtemp
 from shutil import rmtree
 
 import numpy as np
+import traceback
 from pandas import DataFrame
 from scipy import sparse
 import deap
@@ -733,6 +734,9 @@ class TPOTBase(BaseEstimator):
                 self._pbar.write('', file=self.log_file)
                 self._pbar.write('{}\nTPOT closed prematurely. Will use the current best pipeline.'.format(e),
                                  file=self.log_file)
+        except Exception as e:
+            traceback.print_exc()
+            print(e)
         finally:
             # clean population for the next call if warm_start=False
             if not self.warm_start:
