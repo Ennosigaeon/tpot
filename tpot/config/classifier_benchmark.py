@@ -32,7 +32,7 @@ tpot_config = {
 
     # Classifiers
     'sklearn.ensemble.AdaBoostClassifier': {
-        'n_estimators': [50, 100, 200, 300, 400, 500],
+        'n_estimators': [50, 100, 200, 300, 400],
         'learning_rate': [0.1, 0.25, 0.5, 1, 1.5, 2],
         'algorithm': ['SAMME.R', 'SAMME'],
     },
@@ -64,13 +64,13 @@ tpot_config = {
     },
 
     'sklearn.svm.SVC': {  # TODO complete SVC hyperparameter space prevents TPOT from starting
-        'C': [0.03125, 1, 10, 100, 1000, 32768],
+        'C': [0.03125, 1, 10, 100, 1000],
         'kernel': ["rbf", "poly", "sigmoid"],
-        'degree': range(2, 6),
+        'degree': range(2, 5),
         # 'gamma': [3.0517578125e-05, 1e-3, 1e-1, 1, 3, 8],
         'coef0': [-1, -0.5, 0, 0.5, 1],
         'shrinking': [True, False],
-        'tol': [1e-5, 1e-4, 1e-3, 1e-2, 1e-1],
+        'tol': [1e-4, 1e-3, 1e-2, 1e-1],
         # 'max_iter': [-1]
     },
 
@@ -179,13 +179,14 @@ tpot_config = {
         'strategy': ["uniform", "quantile", "kmeans"]
     },
 
-    'sklearn.decomposition.KernelPCA': {
-        "n_components": [10, 100, 1000, 2000],
-        'kernel': ['poly', 'rbf', 'sigmoid', 'cosine'],
-        'gamma': [3.0517578125e-05, 1e-3, 1e-1, 1, 3, 8],
-        'degree': range(2, 6),
-        'coef0': [-1, -0.5, 0, 0.5, 1]
-    },
+    # TODO KernelPCA can require a lot of time. TPOT can not interrupt the fitting
+    # 'sklearn.decomposition.KernelPCA': {
+    #     "n_components": [10, 100, 1000, 2000],
+    #     'kernel': ['poly', 'rbf', 'sigmoid', 'cosine'],
+    #     'gamma': [3.0517578125e-05, 1e-3, 1e-1, 1, 3, 8],
+    #     'degree': range(2, 6),
+    #     'coef0': [-1, -0.5, 0, 0.5, 1]
+    # },
 
     'sklearn.impute.MissingIndicator': {
         'features': ["missing-only", "all"]
