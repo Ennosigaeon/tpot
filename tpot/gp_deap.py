@@ -410,16 +410,6 @@ def _wrapped_cross_val_score(sklearn_pipeline, features, target,
     cv_iter = list(cv.split(features, target, groups))
     scorer = check_scoring(sklearn_pipeline, scoring=scoring_function)
 
-    def handler(signum, frame):
-        print('Signal: {}'.format(signum))
-        raise TimeoutException
-
-    signal.signal(signal.SIGTERM, handler)
-    signal.signal(signal.SIGINT, handler)
-    signal.signal(signal.SIGALRM, handler)
-    signal.signal(signal.SIGXCPU, handler)
-    signal.signal(signal.SIGQUIT, handler)
-
     # Fallback mechanism for dask
     def print_score(CV_score, start, sklearn_pipeline):
         score = np.nanmean(CV_score)

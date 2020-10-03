@@ -62,7 +62,7 @@ from update_checker import update_check
 from ._version import __version__
 from .operator_utils import TPOTOperatorClassFactory, Operator, ARGType
 from .export_utils import export_pipeline, expr_to_tree, generate_pipeline_code, set_param_recursive
-from .decorators import _pre_test
+from .decorators import _pre_test, with_timeout
 from .builtins import CombineDFs, StackingEstimator
 
 from .config.classifier_light import classifier_config_dict_light
@@ -1342,13 +1342,19 @@ class TPOTBase(BaseEstimator):
                             tmp_result_scores = list(dask.compute(*tmp_result_scores))
 
                     else:
+                        @with_timeout(max(int(self.max_eval_time_mins * 60), 1))
+                        def timeout_wrapper(sklearn_pipeline):
+                            return partial_wrapped_cross_val_score(sklearn_pipeline=sklearn_pipeline)
 
                         parallel = Parallel(n_jobs=self._n_jobs, verbose=0, pre_dispatch='2*n_jobs')
                         tmp_result_scores = parallel(
-                            delayed(partial_wrapped_cross_val_score)(sklearn_pipeline=sklearn_pipeline)
+                            delayed(timeout_wrapper)(sklearn_pipeline=sklearn_pipeline)
                             for sklearn_pipeline in sklearn_pipeline_list[chunk_idx:chunk_idx + chunk_size])
                     # update pbar
-                    for val in tmp_result_scores:
+                    for idx, val in enumerate(tmp_result_scores):
+                        if val is None:
+                            val = "Timeout", datetime.now() - self._start_datetime, sklearn_pipeline_list[chunk_idx:chunk_idx + chunk_size][idx]
+
                         if isinstance(val, tuple):
                             val, time, pipeline = val
                             self.run_history.append((time.total_seconds(), float('inf') if val == 'Timeout' else abs(val), pipeline))

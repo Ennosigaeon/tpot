@@ -24,8 +24,13 @@ License along with TPOT. If not, see <http://www.gnu.org/licenses/>.
 """
 
 from __future__ import print_function
+
+import functools
 from functools import wraps
 import warnings
+
+import multiprocessing
+
 from .export_utils import expr_to_tree, generate_pipeline_code
 from deap import creator
 
@@ -118,3 +123,18 @@ def _pre_test(func):
 
 
     return check_pipeline
+
+
+def with_timeout(timeout):
+    def decorator(decorated):
+        @functools.wraps(decorated)
+        def inner(*args, **kwargs):
+            pool = multiprocessing.pool.ThreadPool(1)
+            async_result = pool.apply_async(decorated, args, kwargs)
+            try:
+                return async_result.get(timeout)
+            except multiprocessing.TimeoutError:
+                print('Timeout reached')
+                return None
+        return inner
+    return decorator
